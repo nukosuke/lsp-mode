@@ -4434,9 +4434,9 @@ SESSION is the active session."
   (or lsp--session (setq lsp--session (lsp--load-default-session))))
 
 (defalias 'lsp--seq-contains-p
-  (eval-when-compile (if (>= emacs-major-version 27)
-                         #'seq-contains-p
-                       #'seq-contains)))
+  (eval-when-compile (if (fboundp 'seq-contains-p)
+                         'seq-contains-p
+                      'seq-contains)))
 
 (defun lsp--make-client-handle-pred (buffer-major-mode remote?)
   (lambda (client)
