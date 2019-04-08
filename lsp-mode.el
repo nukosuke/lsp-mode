@@ -4433,6 +4433,11 @@ SESSION is the active session."
   "Get the session associated with the current buffer."
   (or lsp--session (setq lsp--session (lsp--load-default-session))))
 
+(defalias 'lsp--seq-contains-p
+  (eval-when-compile (if (>= emacs-major-version 27)
+                         #'seq-contains-p
+                       #'seq-contains)))
+
 (defun lsp--make-client-handle-pred (buffer-major-mode remote?)
   (lambda (client)
     (pcase-let* (((cl-struct lsp--client activation-fn new-connection) client)
@@ -4440,8 +4445,9 @@ SESSION is the active session."
       (and (if activation-fn ;; if there's an activation function, call it.
 	       (funcall activation-fn buffer-file-name buffer-major-mode)
 	     ;; no activation function, we try checking by ourselves
-	     (and (seq-contains-p (lsp--client-major-modes client)
-				  buffer-major-mode)
+	     (and
+              (lsp--seq-contains-p (lsp--client-major-modes client)
+				   buffer-major-mode)
 		  (if remote?
 		      ;; If this is a remote file, check if the client supports
 		      ;; remote operation.
